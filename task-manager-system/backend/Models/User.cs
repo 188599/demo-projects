@@ -11,4 +11,8 @@ public class User
 
     public string? Password { get; set; }
 
+    public IList<Task> CreatedTasks { get; set; } = [];
+
+    public IList<Task> AssignedTasks { get; set; } = [];
+
 }
