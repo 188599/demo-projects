@@ -179,7 +179,7 @@ export default class SignupPageComponent {
 
         await firstValueFrom(dialogRef.beforeClosed());
     
-        await this.router.navigateByUrl('main');
+        await this.router.navigateByUrl('');
     }
   }
 

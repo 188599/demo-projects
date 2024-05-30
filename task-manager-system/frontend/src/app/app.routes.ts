@@ -5,7 +5,7 @@ export const routes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'main'
+        redirectTo: 'tasks'
     },
     {
         path: '',
@@ -19,7 +19,7 @@ export const routes: Routes = [
         path: '',
         canActivateChild: [authGuard('REQUIRED_LOGGED_IN')],
         children: [
-            { path: 'main', loadComponent: () => import('./pages/main-page/main-page.component') }
+            { path: 'tasks', loadComponent: () => import('./pages/tasks-page/tasks-page.component') }
         ]
     }
 ];

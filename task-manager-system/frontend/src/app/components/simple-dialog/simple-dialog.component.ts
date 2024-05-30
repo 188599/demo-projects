@@ -13,6 +13,7 @@ export interface SimpleDialogData {
 }
 
 @Component({
+  selector: 'app-simple-dialog',
   standalone: true,
   imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent],
   template: `

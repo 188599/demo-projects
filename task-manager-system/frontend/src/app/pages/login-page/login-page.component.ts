@@ -131,7 +131,7 @@ export default class LoginPageComponent {
         break;
 
       default:
-        this.router.navigateByUrl('main');
+        this.router.navigateByUrl('');
     }
 
 

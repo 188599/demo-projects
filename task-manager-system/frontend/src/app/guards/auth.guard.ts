@@ -18,7 +18,7 @@ export const authGuard: (opts: AuthGuardOpts) => CanActivateFn = opts => (route,
           case 'REQUIRED_LOGGED_OUT':
             if (!authService.loggedIn()) return true;
 
-            return router.createUrlTree(['main']);
+            return router.createUrlTree(['tasks']);
 
           default:
             if (authService.loggedIn()) return true;
