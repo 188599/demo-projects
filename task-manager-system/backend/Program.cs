@@ -1,4 +1,4 @@
-using Backend.Contexts;
+using Backend.Data;
 using Backend.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,11 +23,12 @@ if (app.Environment.IsDevelopment())
     // Db migration process
     using var scope = app.Services.CreateScope();
 
-    var context = scope.ServiceProvider.GetRequiredService<UserContext>();
+    var context = scope.ServiceProvider.GetRequiredService<TaskManagamentContext>();
 
     context.Database.EnsureCreated();
 }
 
+// Register endpoint definitions
 app.RegisterEndpointDefinititions();
 
 app.UseHttpsRedirection();

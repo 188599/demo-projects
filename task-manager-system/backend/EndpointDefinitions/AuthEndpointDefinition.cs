@@ -1,8 +1,10 @@
+using Backend.Data;
 using Backend.Interfaces;
 using Backend.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Domains;
+namespace Backend.EndpointDefinitions;
 
 public class AuthEndpointDefinition : IEndpointDefinition
 {
@@ -22,14 +24,20 @@ public class AuthEndpointDefinition : IEndpointDefinition
     }
 
 
-    private async Task<IResult> UsernameCheckAsync(string username, IUserService userService)
+    private async Task<IResult> UsernameCheckAsync(
+        string username,
+        TaskManagamentContext taskManagementCtx)
     {
-        var validUsername = await userService.UsernameExistsAsync(username) == false;
+        var validUsername = !await taskManagementCtx.Users.Where(u => u.Username == username).AnyAsync();
 
         return Results.Ok(new UsernameCheckResponse { ValidUsername = validUsername });
     }
 
-    private async Task<IResult> SignupAsync(SignupRequest request, IUserService userService, ITokenService tokenService)
+    private async Task<IResult> SignupAsync(
+        SignupRequest request,
+        TaskManagamentContext taskManagementCtx,
+        ITokenService tokenService,
+        IPasswordHasherService<User> pHasherService)
     {
         if (string.IsNullOrWhiteSpace(request.Email) ||
        string.IsNullOrWhiteSpace(request.Username) ||
@@ -38,7 +46,7 @@ public class AuthEndpointDefinition : IEndpointDefinition
             return Results.BadRequest();
         }
 
-        var existingUsername = await userService.UsernameExistsAsync(request.Username);
+        var existingUsername = await taskManagementCtx.Users.Where(u => u.Username == request.Username).AnyAsync();
 
         if (existingUsername)
         {
@@ -52,16 +60,24 @@ public class AuthEndpointDefinition : IEndpointDefinition
             Password = request.Password
         };
 
-        await userService.CreateUserAsync(user);
+        user.Password = pHasherService.HashNewPassword(user, user.Password);
+
+        await taskManagementCtx.Users.AddAsync(user);
+
+        await taskManagementCtx.SaveChangesAsync();
 
         var token = tokenService.CreateToken(user);
 
         return Results.Ok(new AuthResponse { Token = token });
     }
 
-    private async Task<IResult> LoginAsync(LoginRequest request, IUserService userService, ITokenService tokenService, IPasswordHasherService<User> pHasherService)
+    private async Task<IResult> LoginAsync(
+        LoginRequest request,
+        TaskManagamentContext taskManagementCtx,
+        ITokenService tokenService,
+        IPasswordHasherService<User> pHasherService)
     {
-        var user = await userService.FindByUsernameAsync(request.Username);
+        var user = await taskManagementCtx.Users.Where(u => u.Username == request.Username).FirstOrDefaultAsync();
 
         if (user == null)
         {
@@ -80,10 +96,8 @@ public class AuthEndpointDefinition : IEndpointDefinition
         return Results.Ok(new AuthResponse { Token = token });
     }
 
-    private IResult ValidateToken()
-    {
-        return Results.Ok();
-    }
+    private IResult ValidateToken() => Results.Ok();
+
 
 }
 

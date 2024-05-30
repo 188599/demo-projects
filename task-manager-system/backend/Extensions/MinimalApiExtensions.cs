@@ -1,5 +1,5 @@
 using System.Text;
-using Backend.Contexts;
+using Backend.Data;
 using Backend.Interfaces;
 using Backend.Models;
 using Backend.Services;
@@ -18,7 +18,7 @@ public static class MinimalApiExtensions
         // Add services to the container.
 
         // Adds DbContext
-        builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("UserContext")));
+        builder.Services.AddDbContext<TaskManagamentContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagementSystemDb")));
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -35,26 +35,25 @@ public static class MinimalApiExtensions
 
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header
-            },
-            []
-        }
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header
+                    },
+                    []
+                }
             });
         });
 
         // Adds backend services
         builder.Services.AddScoped<IPasswordHasherService<User>, PasswordHasherService<User>>();
-        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
 
         // Adds Authorization
