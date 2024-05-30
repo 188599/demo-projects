@@ -3,11 +3,22 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = inject(AuthService).token();
+  try {
+    const token = inject(AuthService)?.token();
 
-  if (!token) return next(req);
+    if (token) {
+      const newReq = req.clone({ headers: req.headers.append('Authorization', `Bearer ${token}`) });
 
-  const newReq = req.clone({ headers: req.headers.append('Authorization', `Beaerer ${token}`) });
+      return next(newReq);
+    }
+  } catch (error: any) {
+    if ((error.message as string).search(/\bNG0200\b/) != -1) {
+      // no-op
+      // expected cyclic dependecy error on first call
+    } else {
+      console.error(error);
+    }
+  }
 
-  return next(newReq);
+  return next(req);
 };
