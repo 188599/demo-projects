@@ -1,18 +1,17 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { ISignupRequest } from '../interfaces/signup-request.interface';
-import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { EMPTY, catchError, finalize, map, of, pipe, tap } from 'rxjs';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+import { EMPTY, catchError, finalize, map, of, pipe, switchMap, tap } from 'rxjs';
 import { IAuthResponse } from '../interfaces/auth-response.interface';
 import { ILoginRequest } from '../interfaces/login-request.interface';
 import { IUsernameCheckResponse } from '../interfaces/username-check-response.interface';
 import { AuthResult } from '../enums/auth-result';
+import { ApiRequestsService } from './api-requests.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
-
-  public readonly authApiUrl = 'http://127.0.0.1:5277/api/auth';
+export class AuthService extends ApiRequestsService {
 
   public readonly token = signal<string | null>(null);
 
@@ -24,10 +23,12 @@ export class AuthService {
   private readonly STORED_TOKEN_KEY = 'STORED_TOKEN';
 
 
-  constructor(private http: HttpClient) {
+  constructor() {
+    super('auth');
+
     const token = localStorage.getItem(this.STORED_TOKEN_KEY);
 
-    if (token) this.validateToken(token).subscribe();
+    this.validateToken(token).subscribe();
 
     // keeps local storage updated with the latest token
     effect(() => localStorage.setItem(this.STORED_TOKEN_KEY, this.token() ?? ''));
@@ -35,27 +36,34 @@ export class AuthService {
 
 
   public signup(signupRequest: ISignupRequest) {
-    return this.http.post<IAuthResponse>(`${this.authApiUrl}/signup`, signupRequest).pipe(this.loginSignupPipe());
+    return this.post<IAuthResponse>('signup', signupRequest).pipe(this.loginSignupPipe());
   }
 
   public login(loginRequest: ILoginRequest) {
-    return this.http.post<IAuthResponse>(`${this.authApiUrl}/login`, loginRequest).pipe(this.loginSignupPipe());
+    return this.post<IAuthResponse>('login', loginRequest).pipe(this.loginSignupPipe());
   }
 
   public logout() { this.token.set(null); }
 
   public isUsernameValid(username: string) {
-    return this.http.get<IUsernameCheckResponse>(`${this.authApiUrl}/username-check/${username}`);
+    return this.get<IUsernameCheckResponse>(`username-check/${username}`);
   }
 
-  private validateToken(token: string) {
-    return this.http.get(`${this.authApiUrl}/validate-token`, { headers: { Authorization: `Bearer ${token}` } }).pipe(
-      tap(_ => this.token.set(token)),
+  private validateToken(token: string | null) {
+    return of(token)
+      .pipe(
+        switchMap(token => {
+          if (!token) return EMPTY;
 
-      catchError(_error => EMPTY),
+          return this.get('validate-token', { headers: { Authorization: `Bearer ${token}` } });
+        }),
 
-      finalize(() => this.didInit.set(true))
-    );
+        tap(_ => this.token.set(token)),
+
+        catchError(_error => EMPTY),
+
+        finalize(() => this.didInit.set(true))
+      );
   }
 
   private loginSignupPipe() {
