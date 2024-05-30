@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "./backend",
+			"name": "Backend - .NET"
+		},
+		{
+			"path": "./frontend",
+			"name": "Frontend - Angular"
+		},
+		{
+			"path": "../",
+			"name": "Root Folder"
+		}
+	],
+	"settings": {}
+}
