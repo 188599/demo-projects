@@ -1,6 +1,6 @@
 namespace Backend.Models;
 
-public class UsernameCheckResponse
+public struct UsernameCheckResponse
 {
 
     public bool ValidUsername { get; set; }

@@ -29,7 +29,9 @@ public enum TaskPriority
 public class Task
 {
 
-    public int TaskID { get; init; }
+    public int Id { get; init; }
+
+    public int? AuthorId { get; init; }
 
     public User? Author { get; init; }
 
@@ -38,6 +40,8 @@ public class Task
     public string? Description { get; set; }
 
     public DateOnly Deadline { get; set; }
+
+    public int? AssigneeId { get; set; }
 
     public User? Assignee { get; set; }
 

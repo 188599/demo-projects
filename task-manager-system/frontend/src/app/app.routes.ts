@@ -11,15 +11,18 @@ export const routes: Routes = [
         path: '',
         canActivateChild: [authGuard('REQUIRED_LOGGED_OUT')],
         children: [
-            { path: 'login', loadComponent: () => import('./pages/login-page/login-page.component') },
-            { path: 'signup', loadComponent: () => import('./pages/signup-page/signup-page.component') },
+            { path: 'login', loadComponent: () => import('./pages/login/login-page.component') },
+            { path: 'signup', loadComponent: () => import('./pages/signup/signup-page.component') },
         ]
     },
     {
         path: '',
         canActivateChild: [authGuard('REQUIRED_LOGGED_IN')],
         children: [
-            { path: 'tasks', loadComponent: () => import('./pages/tasks-page/tasks-page.component') }
+            {
+                path: 'tasks',
+                loadComponent: () => import('./pages/tasks/tasks-page.component')
+            }
         ]
     }
 ];

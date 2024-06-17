@@ -1,7 +1,7 @@
 export class User {
 
-    public username!: string;
+    public id!: number;
 
-    public email!: string;
+    public username!: string;
 
 }

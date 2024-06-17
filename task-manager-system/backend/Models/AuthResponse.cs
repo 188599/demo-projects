@@ -1,7 +1,15 @@
 namespace Backend.Models;
 
-public class AuthResponse
+public struct UserAuthResponse {
+    public required int Id { get; set; }
+
+    public required string Username { get; set; }
+}
+
+public struct AuthResponse
 {
-    public string? Token { get; set; }
+    public required string Token { get; set; }
+
+    public required UserAuthResponse User { get; set; }
 
 }

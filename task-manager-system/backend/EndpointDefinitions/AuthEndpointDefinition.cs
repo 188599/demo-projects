@@ -68,7 +68,17 @@ public class AuthEndpointDefinition : IEndpointDefinition
 
         var token = tokenService.CreateToken(user);
 
-        return Results.Ok(new AuthResponse { Token = token });
+        return Results.Ok(
+            new AuthResponse 
+            { 
+                Token = token,
+                User = new()
+                {
+                    Id = user.Id,
+                    Username = user.Username
+                }
+            }
+        );
     }
 
     private async Task<IResult> LoginAsync(
@@ -93,7 +103,17 @@ public class AuthEndpointDefinition : IEndpointDefinition
 
         var token = tokenService.CreateToken(user);
 
-        return Results.Ok(new AuthResponse { Token = token });
+        return Results.Ok(
+            new AuthResponse
+            {
+                Token = token,
+                User = new()
+                {
+                    Id = user.Id,
+                    Username = user.Username!
+                }
+            }
+        );
     }
 
     private IResult ValidateToken() => Results.Ok();

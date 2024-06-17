@@ -13,7 +13,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // Allow CORS from anywhere
+    // CORS policy allow from anywhere
     app.UseCors(configurePolicy => configurePolicy
         .AllowAnyHeader()
         .AllowAnyMethod()

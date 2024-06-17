@@ -8,7 +8,11 @@ export interface SimpleDialogData {
 
   content: string;
 
-  closeButtonText?: string;
+  okButtonText?: string;
+
+  cancelButton?: boolean;
+
+  cancelButtonText?: string;
 
 }
 
@@ -22,7 +26,11 @@ export interface SimpleDialogData {
     <mat-dialog-content>{{ data.content }}</mat-dialog-content>
 
     <mat-dialog-actions>
-      <button mat-button mat-dialog-close cdkFocusInitial>{{ data.closeButtonText ?? 'Ok' }}</button>
+      <button mat-button (click)="close()">{{ data.okButtonText ?? 'Ok' }}</button>
+
+      @if (data.cancelButton) {
+        <button mat-button (click)="close(true)" cdkFocusInitial>{{ data.cancelButtonText ?? 'Cancel' }}</button>
+      }
     </mat-dialog-actions>
   `
 })
@@ -33,5 +41,10 @@ export class SimpleDialogComponent {
     public data: SimpleDialogData,
     public dialogRef: MatDialogRef<SimpleDialogComponent>
   ) { }
+
+
+  public close(cancel = false) {
+    this.dialogRef.close({ cancel });
+  }
 
 }

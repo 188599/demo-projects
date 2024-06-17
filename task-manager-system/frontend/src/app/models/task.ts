@@ -4,7 +4,7 @@ import { User } from "./user";
 
 export class Task {
 
-    public readonly taskID!: number;
+    public readonly id!: number;
 
     public readonly author!: User;
 
@@ -12,7 +12,7 @@ export class Task {
 
     public description?: string;
 
-    public deadline!: Date;
+    public deadline!: string;
 
     public assignee?: User;
 
