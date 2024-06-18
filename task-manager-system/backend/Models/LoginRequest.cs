@@ -1,15 +1,10 @@
-
-using System.ComponentModel.DataAnnotations;
-
 namespace Backend.Models;
 
-public class LoginRequest
+public struct LoginRequest
 {
 
-    [Required]
-    public string? Username { get; set; }
+    public required string? Username { get; set; }
 
-    [Required]
-    public string? Password { get; set; }
+    public required string? Password { get; set; }
 
 }

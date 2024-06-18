@@ -22,6 +22,10 @@ export const routes: Routes = [
             {
                 path: 'tasks',
                 loadComponent: () => import('./pages/tasks/tasks-page.component')
+            },
+            {
+                path: 'account-settings',
+                loadComponent: () => import('./pages/account-settings/account-settings-page.component')
             }
         ]
     }

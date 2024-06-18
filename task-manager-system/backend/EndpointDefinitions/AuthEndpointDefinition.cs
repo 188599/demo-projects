@@ -69,13 +69,14 @@ public class AuthEndpointDefinition : IEndpointDefinition
         var token = tokenService.CreateToken(user);
 
         return Results.Ok(
-            new AuthResponse 
-            { 
+            new AuthResponse
+            {
                 Token = token,
                 User = new()
                 {
                     Id = user.Id,
-                    Username = user.Username
+                    Username = user.Username,
+                    Email = user.Email!
                 }
             }
         );
@@ -110,7 +111,9 @@ public class AuthEndpointDefinition : IEndpointDefinition
                 User = new()
                 {
                     Id = user.Id,
-                    Username = user.Username!
+                    Username = user.Username!,
+                    Email = user.Email!,
+                    ProfilePicture = user.ProfilePicture
                 }
             }
         );

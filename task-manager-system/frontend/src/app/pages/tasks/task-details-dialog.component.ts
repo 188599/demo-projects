@@ -140,6 +140,11 @@ import { DialogService } from "../../services/dialog.service";
         </form>
     `,
     styles: `
+        :host {
+            display: block;
+            margin: 12px;
+        }
+
         .title {
             width: 100%;
         }

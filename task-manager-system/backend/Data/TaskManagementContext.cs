@@ -26,6 +26,8 @@ public class TaskManagamentContext(DbContextOptions options, IPasswordHasherServ
             u.Property(u => u.Username).IsRequired().HasMaxLength(32);
 
             u.Property(u => u.Password).IsRequired();
+
+            u.Property(u => u.ProfilePicture);
         });
 
         modelBuilder.Entity<Task>(t =>
@@ -52,17 +54,35 @@ public class TaskManagamentContext(DbContextOptions options, IPasswordHasherServ
             new User
             {
                 Id = 1,
-                Email = "fake@email.com",
-                Username = "john_1",
-                Password = "pass123"
+                Email = "the_real_sponge_bob_square_pants@email.com",
+                Username = "sponge_bob",
+                Password = "pass123",
+                ProfilePicture = ProfilePictures.SpongeBob
             },
             new User
             {
                 Id = 2,
-                Email = "fake@email.com.eu",
-                Username = "john_2",
-                Password = "123"
-            }
+                Email = "impatrick@email.com",
+                Username = "patrick",
+                Password = "123",
+                ProfilePicture = ProfilePictures.Patrick
+            },
+            new User
+            {
+                Id = 3,
+                Email = "squidward@email.com",
+                Username = "squidward",
+                Password = "123",
+                ProfilePicture = ProfilePictures.Squidward
+            },
+            new User
+            {
+                Id = 4,
+                Email = "i_want_your_money@krustykrab.com",
+                Username = "mr_krabs",
+                Password = "money",
+                ProfilePicture = ProfilePictures.MrKrabs
+            },
         };
 
         foreach (var seedUser in seedUsers)

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TasksService } from '../../services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -11,7 +11,7 @@ import { TASK_PRIORITY_LABEL_MAPPING } from '../../enums/task-priority';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskPageDetailsDialog } from './task-details-dialog.component';
 import { TypeSafeMatCellDefDirective } from '../../directives/type-safe-mat-cell-def.directive';
-import { BehaviorSubject, distinctUntilChanged, filter, lastValueFrom, merge, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, lastValueFrom, map, merge, switchMap, tap } from 'rxjs';
 import { MatSortModule, Sort, SortDirection } from '@angular/material/sort';
 import { MatRippleModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
@@ -172,9 +172,24 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     TypeSafeMatCellDefDirective
   ],
   styles: `
+    @use '@angular/material' as mat;
+
+    $theme: mat.define-theme();
+
+    :host {
+      display: block;
+      margin: 8px;
+    }
+
     mat-toolbar {
+      margin-top: 16px;
+      
       mat-form-field, button  {
         margin-inline-end: 8px;
+      }
+      
+      .top-buttons {
+        align-self: baseline;
       }
     }
 
@@ -217,8 +232,6 @@ export default class TasksPageComponent extends Page {
     filter: ['', Validators.required]
   });
 
-  public today = new Date();
-
 
   constructor(
     private fb: FormBuilder,
@@ -228,7 +241,7 @@ export default class TasksPageComponent extends Page {
   ) {
     super('Tasks');
 
-    merge(    
+    merge(
       // on property value changes
       this.filterForm.controls.property.valueChanges.pipe(
         // distinct values
@@ -266,7 +279,7 @@ export default class TasksPageComponent extends Page {
 
   public getTasksList() {
     return this.triggerListRefresh$.pipe(
-      switchMap(() => {
+      map(() => {
         const tasksRequestParams: TasksRequestParams = {};
 
         if (this.sort) {
@@ -277,14 +290,20 @@ export default class TasksPageComponent extends Page {
           tasksRequestParams.filtering = this.filterForm.value as TasksRequestParams['filtering'];
         }
 
-        return this.tasksService.getTasks(tasksRequestParams);
-      }));
+        return tasksRequestParams;
+      }),
+      distinctUntilChanged((a, b) => JSON.stringify(a).split('').sort().join('') === JSON.stringify(b).split('').sort().join('')),
+      switchMap(opts => this.tasksService.getTasks(opts)));
   }
 
   public toggleFilter() {
     this.filter = !this.filter;
 
     this.triggerListRefresh$.next();
+
+    if (!this.filter) {
+      this.filterForm.controls.filter.setValue(null);
+    }
   }
 
   public onFilterDeadlineChange(start: any, end: any) {

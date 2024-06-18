@@ -1,18 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { AsyncValidatorFn, FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { Component, Injector } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../services/auth.service';
-import { timer, map, switchMap, firstValueFrom, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ISignupRequest } from '../../interfaces/signup-request.interface';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '../../components/simple-dialog/simple-dialog.component';
 import { Router } from '@angular/router';
 import { AuthResult } from '../../enums/auth-result';
+import { AppAsyncValidators, AppValidators } from '../../validators/validators';
 
 @Component({
   selector: 'app-signup-page',
@@ -138,18 +139,11 @@ import { AuthResult } from '../../enums/auth-result';
 })
 export default class SignupPageComponent {
 
-  private confirmPasswordValidator: ValidatorFn = (ctrl) => ctrl.value !== this.form?.controls.password.value ? { notMatch: true } : null;
-
-  private usernameAsyncValidator: AsyncValidatorFn = (ctrl) => timer(500).pipe(
-    switchMap(_ => this.authService.isUsernameValid(ctrl.value)),
-    map(({ validUsername }) => validUsername ? null : ({ usernameInUse: true }))
-  );
-
   public form = this.fb.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(320)]],
-    username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9_]*$/), Validators.minLength(3), Validators.maxLength(32)], this.usernameAsyncValidator],
+    username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9_]*$/), Validators.minLength(3), Validators.maxLength(32)], AppAsyncValidators.uniqueUsername(this.injector)],
     password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(64)]],
-    confirmPassword: ['', [this.confirmPasswordValidator, Validators.minLength(3), Validators.maxLength(64)]]
+    confirmPassword: ['', [AppValidators.confirmPassword('password'), Validators.minLength(3), Validators.maxLength(64)]]
   });
 
 
@@ -157,7 +151,8 @@ export default class SignupPageComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private injector: Injector
   ) { }
 
 

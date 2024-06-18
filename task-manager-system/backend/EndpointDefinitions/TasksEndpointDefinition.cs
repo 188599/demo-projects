@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Backend.Data;
+using Backend.Extensions;
 using Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -250,11 +250,6 @@ static class HelpersExtensions
                 } : null
             }
         );
-    }
-
-    public static int GetUserId(this HttpContext ctx)
-    {
-        return int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     }
 
     public static Models.Task ConfigureForDbUpsert(this Models.Task task, int? userId = default)
