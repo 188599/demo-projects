@@ -18,7 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { UsersService } from '../../services/users.service';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -30,7 +30,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   standalone: true,
   template: `
     <mat-toolbar>
-      <form [formGroup]="filterForm">
+      <form [formGroup]="filterForm" (ngSubmit)="searchWithFilter()">
         @if (filter) {
           <mat-form-field>
             <mat-label>Filter by</mat-label>
@@ -48,7 +48,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                 <mat-label>Filter</mat-label>
   
                 <mat-select formControlName="filter">
-  
                   @for (status of statuses; track $index) {
                     <mat-option [value]="status.toString()">{{ TASK_STATUS_LABEL_MAPPING[status] }}</mat-option>
                   }
@@ -87,6 +86,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                 <mat-label>Filter</mat-label>
   
                 <mat-select formControlName="filter">
+                  <mat-option [value]="null">-</mat-option>
+
                   @for (user of users$ | async; track $index) {
                     <mat-option [value]="user.id.toString()">{{ user.username }}</mat-option>
                   }
@@ -94,6 +95,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               </mat-form-field>
             }
           }
+
+          <button mat-mini-fab color="primary"><mat-icon>search</mat-icon></button>
         }
       </form>
 
@@ -208,7 +211,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export default class TasksPageComponent extends Page {
 
-  private triggerListRefresh$ = new BehaviorSubject<void>(undefined);
+  private triggerListRefresh$ = new BehaviorSubject<boolean | void>(true);
 
   private sort: TasksRequestParams['sorting'] | null = null;
 
@@ -229,7 +232,7 @@ export default class TasksPageComponent extends Page {
 
   public filterForm = this.fb.group({
     property: ['status', Validators.required],
-    filter: ['', Validators.required]
+    filter: ['', (ctrl: AbstractControl) => ctrl.parent?.value.property != 'assignee' ? Validators.required(ctrl) : null]
   });
 
 
@@ -248,15 +251,7 @@ export default class TasksPageComponent extends Page {
         distinctUntilChanged(),
         // reset filter value
         tap(_ => this.filterForm.controls.filter.setValue(null))
-      ),
-
-      // on status changes
-      this.filterForm.statusChanges.pipe(
-        // filter emissions for when filter is active and the form is valid
-        filter(status => this.filter && status == 'VALID'),
-        // refresh list with filters
-        tap(_ => this.triggerListRefresh$.next())
-      ),
+      )
     )
       .pipe(takeUntilDestroyed())
       .subscribe();
@@ -269,7 +264,7 @@ export default class TasksPageComponent extends Page {
       .beforeClosed());
 
     if (dialogResult?.refresh)
-      this.triggerListRefresh$.next();
+      this.triggerListRefresh$.next(true);
   }
 
   public sortChanges(sortState: Sort) {
@@ -279,7 +274,7 @@ export default class TasksPageComponent extends Page {
 
   public getTasksList() {
     return this.triggerListRefresh$.pipe(
-      map(() => {
+      map(forceRefresh => {
         const tasksRequestParams: TasksRequestParams = {};
 
         if (this.sort) {
@@ -290,10 +285,16 @@ export default class TasksPageComponent extends Page {
           tasksRequestParams.filtering = this.filterForm.value as TasksRequestParams['filtering'];
         }
 
-        return tasksRequestParams;
+        return { tasksRequestParams, forceRefresh };
       }),
-      distinctUntilChanged((a, b) => JSON.stringify(a).split('').sort().join('') === JSON.stringify(b).split('').sort().join('')),
-      switchMap(opts => this.tasksService.getTasks(opts)));
+      distinctUntilChanged((previous, current) => {
+        if (current.forceRefresh) return false;
+
+        // stringify for simple equality comparison
+        return (JSON.stringify(previous.tasksRequestParams).split('').sort().join('') === 
+          JSON.stringify(current.tasksRequestParams).split('').sort().join(''));
+      }),
+      switchMap(({ tasksRequestParams }) => this.tasksService.getTasks(tasksRequestParams)));
   }
 
   public toggleFilter() {
@@ -314,6 +315,12 @@ export default class TasksPageComponent extends Page {
     }
 
     this.filterForm.controls.filter.setValue(`${dayjs(start).format('YYYY-MM-DD')}>${dayjs(end).format('YYYY-MM-DD')}`);
+  }
+
+  public searchWithFilter() {
+    if (this.filterForm.invalid) return;
+
+    this.triggerListRefresh$.next();
   }
 
 }

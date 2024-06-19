@@ -26,7 +26,7 @@ public class AuthEndpointDefinition : IEndpointDefinition
 
     private async Task<IResult> UsernameCheckAsync(
         string username,
-        TaskManagamentContext taskManagementCtx)
+        TaskManagementContext taskManagementCtx)
     {
         var validUsername = !await taskManagementCtx.Users.Where(u => u.Username == username).AnyAsync();
 
@@ -35,7 +35,7 @@ public class AuthEndpointDefinition : IEndpointDefinition
 
     private async Task<IResult> SignupAsync(
         SignupRequest request,
-        TaskManagamentContext taskManagementCtx,
+        TaskManagementContext taskManagementCtx,
         ITokenService tokenService,
         IPasswordHasherService<User> pHasherService)
     {
@@ -84,7 +84,7 @@ public class AuthEndpointDefinition : IEndpointDefinition
 
     private async Task<IResult> LoginAsync(
         LoginRequest request,
-        TaskManagamentContext taskManagementCtx,
+        TaskManagementContext taskManagementCtx,
         ITokenService tokenService,
         IPasswordHasherService<User> pHasherService)
     {

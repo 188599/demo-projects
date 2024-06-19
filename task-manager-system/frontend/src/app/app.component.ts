@@ -7,19 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { TitleService } from './services/title.service';
 import { Location } from '@angular/common';
+import { MatBadgeModule } from '@angular/material/badge';
+import { NotificationsComponent } from "./components/notifications/notifications.component";
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    RouterOutlet,
-    RouterModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule
-  ],
-  template: `
+    selector: 'app-root',
+    standalone: true,
+    template: `
     <mat-sidenav-container>
       <mat-sidenav mode="side"></mat-sidenav>
 
@@ -34,9 +28,7 @@ import { Location } from '@angular/common';
 
             <span class="spacer"></span>
 
-            <button mat-icon-button>
-              <mat-icon>notifications</mat-icon>
-            </button>
+            <app-notifications />
 
             <a mat-icon-button routerLink="/account-settings">
               <mat-icon>account_circle</mat-icon>
@@ -52,7 +44,7 @@ import { Location } from '@angular/common';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: `
+    styles: `
     @use '@angular/material' as mat;
 
     $theme: mat.define-theme();
@@ -64,6 +56,10 @@ import { Location } from '@angular/common';
     mat-toolbar {
       z-index: 999;
       position: relative;
+
+      > button:first-child {
+        margin-inline-end: 8px;
+      } 
     }
 
     mat-sidenav-container {
@@ -82,6 +78,16 @@ import { Location } from '@angular/common';
       flex: 1 1 auto;
     }
  `,
+    imports: [
+        RouterOutlet,
+        RouterModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatBadgeModule,
+        NotificationsComponent
+    ]
 })
 export class AppComponent {
 

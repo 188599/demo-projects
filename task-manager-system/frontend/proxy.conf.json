@@ -1,0 +1,15 @@
+{
+    "/notificationshub": {
+        "target": "http://localhost:5277",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug",
+        "ws": true
+    },
+    "/api": {
+        "target": "http://localhost:5277",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}

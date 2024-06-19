@@ -6,12 +6,14 @@ using TaskStatus = Backend.Models.TaskStatus;
 
 namespace Backend.Data;
 
-public class TaskManagamentContext(DbContextOptions options, IPasswordHasherService<User> _passwordHasher) : DbContext(options)
+public class TaskManagementContext(DbContextOptions options, IPasswordHasherService<User> _passwordHasher) : DbContext(options)
 {
 
     public DbSet<User> Users => Set<User>();
 
     public DbSet<Task> Tasks => Set<Task>();
+
+    public DbSet<TaskAssignedNotification> TaskAssignedNotifications => Set<TaskAssignedNotification>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +47,17 @@ public class TaskManagamentContext(DbContextOptions options, IPasswordHasherServ
             t.Property(t => t.Status).IsRequired();
 
             t.Property(t => t.Priority).IsRequired();
+        });
+
+        modelBuilder.Entity<TaskAssignedNotification>(tan => 
+        {
+            tan.HasKey(tan => tan.TaskId);
+
+            tan.Property(tan => tan.TaskId).ValueGeneratedNever();
+
+            tan.Property(tan => tan.AssigneeId).IsRequired();
+
+            tan.Property(tan => tan.CreatedOn).HasDefaultValueSql("GETDATE()");
         });
 
 

@@ -5,7 +5,7 @@ type HttpOptions = Parameters<HttpClient['get']>[1];
 
 export abstract class ApiRequests {
 
-  protected readonly apiUrl = 'http://localhost:5277/api';
+  protected readonly apiUrl = '/api';
 
   protected readonly http = inject(HttpClient);
 

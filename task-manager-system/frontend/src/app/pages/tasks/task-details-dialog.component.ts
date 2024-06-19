@@ -19,6 +19,7 @@ import { lastValueFrom } from "rxjs";
 import { MatButtonModule } from "@angular/material/button";
 import { AuthService } from "../../services/auth.service";
 import { DialogService } from "../../services/dialog.service";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
     imports: [
@@ -30,10 +31,11 @@ import { DialogService } from "../../services/dialog.service";
         MatSelectModule,
         MatGridListModule,
         MatDatepickerModule,
-        MatButtonModule
+        MatButtonModule,
+        MatProgressSpinnerModule
     ],
     template: `
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" [class.readonly]="viewingMode">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" [class.readonly]="viewingMode" [style.display]="isLoading ? 'none' : null">
             <mat-form-field mat-dialog-title class="title" [appearance]="viewingMode ? 'outline' : 'fill'">
                 <input 
                     matInput 
@@ -113,7 +115,7 @@ import { DialogService } from "../../services/dialog.service";
                                 <mat-select formControlName="priority">
                                     @for (priority of priorities; track $index) {
                                         <mat-option [value]="priority">
-                                           {{ TASK_PRIORITY_LABEL_MAPPING[priority] }}
+                                            {{ TASK_PRIORITY_LABEL_MAPPING[priority] }}
                                         </mat-option>
                                     }
                                 </mat-select>
@@ -138,6 +140,10 @@ import { DialogService } from "../../services/dialog.service";
                 </mat-grid-list>
             </mat-dialog-content>
         </form>
+
+        @if (isLoading) {
+            <mat-spinner mode="indeterminate" />
+        }
     `,
     styles: `
         :host {
@@ -177,6 +183,9 @@ import { DialogService } from "../../services/dialog.service";
             }
         }
 
+        mat-spinner {
+            margin: 32vh auto;
+        }
     `,
     standalone: true
 })
@@ -203,6 +212,9 @@ export class TaskPageDetailsDialog implements OnInit {
 
     public usersSig = toSignal(this.usersService.getUsers());
 
+    public isLoading = true;
+
+    
     private _viewingMode = false;
 
 
@@ -238,14 +250,12 @@ export class TaskPageDetailsDialog implements OnInit {
 
         if (author.id != this.authService.user!.id)
             this._viewingMode = true;
+
+        this.isLoading = false;
     }
 
     public async onSubmit() {
-        if (!this.form.valid) {
-            // TODO: idk if i'll need to something here yet
-
-            return;
-        }
+        if (!this.form.valid) return;
 
         if (!this.form.dirty) {
             this.dialogRef.close({ refresh: false });

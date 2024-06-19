@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Backend.Data;
 using Backend.Extensions;
+using Backend.Hubs;
 using Backend.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -33,7 +35,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
     [GeneratedRegex(@"^(?<order>[-+])(?<sortBy>\w+)$")]
     private static partial Regex SortRegex();
 
-    private async Task<IResult> GetAsync(TaskManagamentContext ctx, string? sort, string? filter)
+    private async Task<IResult> GetAsync(TaskManagementContext ctx, string? sort, string? filter)
     {
         IQueryable<Models.Task> tasksQuery = ctx.Tasks;
 
@@ -63,7 +65,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
                         tasksQuery = tasksQuery.Where(t => t.Deadline >= DateOnly.Parse(value) && t.Deadline <= DateOnly.Parse(value2));
                     }
 
-                    else 
+                    else
                     {
                         tasksQuery = tasksQuery.Where(t => t.Deadline == DateOnly.Parse(value));
                     }
@@ -72,7 +74,16 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
                     break;
 
                 case "Assignee":
-                    tasksQuery = tasksQuery.Where(t => t.AssigneeId == int.Parse(value));
+                    if (int.TryParse(value, out var assigneeId))
+                    {
+                        tasksQuery = tasksQuery.Where(t => t.AssigneeId == assigneeId);
+                    }
+
+                    else if(value == "null") 
+                    {
+                        tasksQuery = tasksQuery.Where(t => t.AssigneeId == null);
+                    }
+
 
                     break;
 
@@ -120,7 +131,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
         return Results.Ok(tasks);
     }
 
-    private async Task<IResult> GetByIdAsync(int taskId, TaskManagamentContext ctx)
+    private async Task<IResult> GetByIdAsync(int taskId, TaskManagementContext ctx)
     {
         var task = await ctx.Tasks
             .Where(t => t.Id == taskId)
@@ -130,7 +141,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
         return Results.Ok(task);
     }
 
-    private async Task<IResult> AddTaskAsync(Models.Task task, TaskManagamentContext ctx, HttpContext http)
+    private async Task<IResult> AddTaskAsync(Models.Task task, TaskManagementContext ctx, HttpContext http, IHubContext<TasksNotificationHub, ITasksAssignedClient> hubCtx)
     {
         try
         {
@@ -142,6 +153,14 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
 
             await ctx.SaveChangesAsync();
 
+            // notify assignee in case there's one
+            if (taskForDbInsert.AssigneeId != null)
+            {
+                await CreateNotificationAsync(taskForDbInsert.Id, taskForDbInsert.AssigneeId.Value, ctx);                
+
+                await EmitNotificationsAsync(taskForDbInsert.AssigneeId.Value, ctx, hubCtx);
+            }
+
             return Results.Ok();
         }
         catch (Exception e)
@@ -152,7 +171,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
         }
     }
 
-    private async Task<IResult> UpdateTaskAsync(Models.Task task, TaskManagamentContext ctx, HttpContext http)
+    private async Task<IResult> UpdateTaskAsync(Models.Task task, TaskManagementContext ctx, HttpContext http, IHubContext<TasksNotificationHub, ITasksAssignedClient> hubCtx)
     {
         try
         {
@@ -180,6 +199,30 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
 
             await ctx.SaveChangesAsync();
 
+            // notify previous and current assignees if existing
+            if (dbTask.AssigneeId != null || taskForDbUpdate.AssigneeId != null)
+            {
+                List<Func<Task>> notificationsToEmit = [];
+
+                if (dbTask.AssigneeId != null)
+                {
+                    await DeleteNotificationAsync(taskForDbUpdate.Id, ctx);
+
+                    notificationsToEmit.Add(() => EmitNotificationsAsync(dbTask.AssigneeId.Value, ctx, hubCtx));
+                }
+
+                if (taskForDbUpdate.AssigneeId != null)
+                {
+                    await CreateNotificationAsync(taskForDbUpdate.Id, taskForDbUpdate.AssigneeId.Value, ctx);
+
+                    notificationsToEmit.Add(() => EmitNotificationsAsync(taskForDbUpdate.AssigneeId.Value, ctx, hubCtx));
+                }
+
+                await ctx.SaveChangesAsync();
+
+                await Task.WhenAll(notificationsToEmit.Select(f => f()));
+            }
+
             return Results.Ok();
         }
         catch (Exception e)
@@ -190,7 +233,7 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
         }
     }
 
-    private async Task<IResult> DeleteTaskAsync(int taskId, TaskManagamentContext ctx, HttpContext http)
+    private async Task<IResult> DeleteTaskAsync(int taskId, TaskManagementContext ctx, HttpContext http, IHubContext<TasksNotificationHub, ITasksAssignedClient> hubCtx)
     {
         try
         {
@@ -210,6 +253,16 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
 
             await ctx.SaveChangesAsync();
 
+            // deletes notifications related to task and notify previous assignee
+            if (task.AssigneeId != null)
+            {
+                await DeleteNotificationAsync(taskId, ctx);
+
+                await ctx.SaveChangesAsync();
+
+                await EmitNotificationsAsync(task.AssigneeId.Value, ctx, hubCtx);
+            }
+
             return Results.Ok();
         }
         catch (Exception e)
@@ -218,6 +271,34 @@ public partial class TasksEndpointDefinition : IEndpointDefinition
 
             return Results.Problem();
         }
+    }
+
+    private static async Task CreateNotificationAsync(int taskId, int assigneeId, TaskManagementContext taskManagementCtx)
+    {
+        await taskManagementCtx.TaskAssignedNotifications.AddAsync(new()
+        {
+            TaskId = taskId,
+            AssigneeId = assigneeId
+        });
+    }
+
+    private static async Task DeleteNotificationAsync(int taskId, TaskManagementContext ctx)
+    {
+        var notification = await ctx.TaskAssignedNotifications.FindAsync(taskId);
+
+        if (notification == null) 
+        {
+            return;
+        };
+        
+        ctx.TaskAssignedNotifications.Remove(notification);
+    }
+
+    private static async Task EmitNotificationsAsync(int userId, TaskManagementContext taskManagementCtx, IHubContext<TasksNotificationHub, ITasksAssignedClient> hubContext)
+    {
+        var notifications = await taskManagementCtx.TaskAssignedNotifications.Where(t => t.AssigneeId == userId).ToListAsync();
+
+        await hubContext.Clients.User(userId.ToString()).SendNotificationsAsync(notifications);
     }
 
 }

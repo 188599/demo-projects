@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Extensions;
+using Backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,17 +14,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // CORS policy allow from anywhere
-    app.UseCors(configurePolicy => configurePolicy
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin()
-    );
-
     // Db migration process
     using var scope = app.Services.CreateScope();
 
-    var context = scope.ServiceProvider.GetRequiredService<TaskManagamentContext>();
+    var context = scope.ServiceProvider.GetRequiredService<TaskManagementContext>();
 
     context.Database.EnsureCreated();
 }
@@ -35,5 +29,7 @@ app.UseHttpsRedirection();
 // Enable Authorization
 app.UseAuthorization();
 
+// Configure SignalR hub
+app.MapHub<TasksNotificationHub>("notificationshub");
 
 app.Run();

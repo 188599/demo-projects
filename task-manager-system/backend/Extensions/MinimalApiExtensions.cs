@@ -18,7 +18,7 @@ public static class MinimalApiExtensions
         // Add services to the container.
 
         // Adds DbContext
-        builder.Services.AddDbContext<TaskManagamentContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagementSystemDb")).EnableSensitiveDataLogging());
+        builder.Services.AddDbContext<TaskManagementContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagementSystemDb")).EnableSensitiveDataLogging());
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -76,8 +76,8 @@ public static class MinimalApiExtensions
                 };
             });
 
-        // Add Cors
-        builder.Services.AddCors();
+        // Add SignalR
+        builder.Services.AddSignalR();
     }
 
     public static void RegisterEndpointDefinititions(this WebApplication app)

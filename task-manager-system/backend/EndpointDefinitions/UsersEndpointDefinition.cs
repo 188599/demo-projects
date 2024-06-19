@@ -25,7 +25,7 @@ public class UsersEndpointDefinition : IEndpointDefinition
     }
 
 
-    private async Task<IResult> GetAsync(TaskManagamentContext ctx)
+    private async Task<IResult> GetAsync(TaskManagementContext ctx)
     {
         var users = await ctx.Users
             .Select(u => new
@@ -38,7 +38,7 @@ public class UsersEndpointDefinition : IEndpointDefinition
         return Results.Ok(users);
     }
 
-    private async Task<IResult> GetUserDetailsAsync(TaskManagamentContext ctx, HttpContext httpCtx)
+    private async Task<IResult> GetUserDetailsAsync(TaskManagementContext ctx, HttpContext httpCtx)
     {
         var user = await ctx.Users
             .Select(u => new
@@ -58,7 +58,7 @@ public class UsersEndpointDefinition : IEndpointDefinition
         return Results.Ok(user);
     }
 
-    private async Task<IResult> ChangeProfilePictureAsync(ChangeProfilePictureRequest profilePicture, TaskManagamentContext ctx, HttpContext httpCtx)
+    private async Task<IResult> ChangeProfilePictureAsync(ChangeProfilePictureRequest profilePicture, TaskManagementContext ctx, HttpContext httpCtx)
     {
         var userDb = await ctx.Users.FindAsync(httpCtx.GetUserId());
 
@@ -74,7 +74,7 @@ public class UsersEndpointDefinition : IEndpointDefinition
         return Results.Accepted();
     }
 
-    private async Task<IResult> UpdateAsync(UpdatedUserRequest user, TaskManagamentContext ctx, HttpContext httpCtx, IPasswordHasherService<User> phasherService)
+    private async Task<IResult> UpdateAsync(UpdatedUserRequest user, TaskManagementContext ctx, HttpContext httpCtx, IPasswordHasherService<User> phasherService)
     {
         var userId = httpCtx.GetUserId();
         var userDb = await ctx.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
