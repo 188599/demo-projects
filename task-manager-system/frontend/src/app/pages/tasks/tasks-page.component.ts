@@ -156,6 +156,10 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
       <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
       
       <mat-row *matRowDef="let task; columns: displayedColumns" matRipple class="clickable" (click)="openDetailsDialog(task.id)"></mat-row>
+
+      <tr class="mat-row-no-data" *matNoDataRow>
+        <td class="mat-cell-no-data" colspan="1000">No data matching the filter</td>
+      </tr>
     </mat-table>
   `,
   imports: [
@@ -208,6 +212,18 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
     .clickable {
       cursor: pointer;
+    }
+
+    tr.mat-row-no-data {
+      height: 52px;
+      display: flex;
+
+      td.mat-cell-no-data {
+        align-self: center;
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
+      }
     }
   `
 })
