@@ -1,0 +1,26 @@
+services:
+  web:
+    build: frontend
+    ports:
+      - 4200:4200
+    depends_on:
+      - api
+
+  api:
+    build: backend
+    ports:
+      - 5277:5277
+    environment:
+      - ConnectionStrings__TaskManagementSystemDb=Server=database,1433;Database=TaskManagementSystemDb;MultipleActiveResultSets=true;TrustServerCertificate=True;User ID=SA;Password=yourStrong(!)Password;
+    depends_on:
+      - database
+
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=yourStrong(!)Password
+      - MSSQL_PID=Evaluation
+    restart: always
+    ports:
+      - 1433:1433

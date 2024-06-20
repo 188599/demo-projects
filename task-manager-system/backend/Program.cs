@@ -1,6 +1,10 @@
 using Backend.Data;
 using Backend.Extensions;
 using Backend.Hubs;
+using Microsoft.EntityFrameworkCore;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,13 +18,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // Db migration process
-    using var scope = app.Services.CreateScope();
+}
 
+var resiliencePipeline = new ResiliencePipelineBuilder()
+    .AddCircuitBreaker(new CircuitBreakerStrategyOptions())
+    .AddRetry(new RetryStrategyOptions())
+    .Build();
+
+// Db migration process
+resiliencePipeline.Execute(() =>
+{
+    using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<TaskManagementContext>();
 
-    context.Database.EnsureCreated();
-}
+    context.Database.Migrate();
+});
 
 // Register endpoint definitions
 app.RegisterEndpointDefinititions();

@@ -1,6 +1,11 @@
 {
 	"folders": [
 		{
+			"path": "./",
+			"name": "Task Management System"
+		},
+		
+		{
 			"path": "./backend",
 			"name": "Backend - .NET"
 		},

@@ -22,6 +22,22 @@
             "outputPath": "dist/frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "externalDependencies": [
+              "http",
+              "https",
+              "url",
+              "util",
+              "net"
+            ],
+            "allowedCommonJsDependencies": [
+              "tough-cookie",
+              "node-fetch",
+              "fetch-cookie",
+              "abort-controller",
+              "ws",
+              "eventsource",
+              "dayjs"
+            ],
             "polyfills": [
               "zone.js"
             ],
