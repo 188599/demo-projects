@@ -104,78 +104,178 @@ public class TaskManagementContext(DbContextOptions options, IPasswordHasherServ
         }
 
 
-        var seedTasks = new[]
+        var seedTasks = new Models.Task[]
         {
-            new
+            new()
             {
                 Id = 1,
-                AuthorId = 1,
-                Title = "#1 Task",
-                Description = "This is a task for test.",
+                AuthorId = 4,
+                Title = "Ingredient Inventory",
+                Description = "Take stock of all ingredients in the Krusty Krab kitchen to ensure we have enough for the upcoming week.",
                 Deadline = new DateOnly(2030, 01, 01),
-                Priority = TaskPriority.NoPriority,
+                Priority = TaskPriority.MediumPriority,
                 Status = TaskStatus.ToDo,
                 AssigneeId = 1
             },
-            new
+            new()
             {
                 Id = 2,
                 AuthorId = 1,
-                Title = "#2 Task",
-                Description = "This is a task for test.",
-                Deadline = new DateOnly(2030, 02, 02),
-                Priority = TaskPriority.MediumPriority,
-                Status = TaskStatus.InProgress,
+                Title = "Bubble Art Exhibition",
+                Description = "Create a series of intricate bubble sculptures for the Bikini Bottom Art Gallery.",
+                Deadline = new DateOnly(2030, 01, 02),
+                Priority = TaskPriority.HighPriority,
+                Status = TaskStatus.ToDo,
                 AssigneeId = 1
             },
-            new
+            new()
             {
                 Id = 3,
-                AuthorId = 1,
-                Title = "#3 Task",
-                Description = "This is a task for test.",
-                Deadline = new DateOnly(2030, 03, 03),
-                Priority = TaskPriority.HighPriority,
-                Status = TaskStatus.InProgress,
+                AuthorId = 3,
+                Title = "Clarinet Repair",
+                Description = "Fix Squidward's clarinet, which got damaged during a botched practice session.",
+                Deadline = new DateOnly(2030, 01, 03),
+                Priority = TaskPriority.Critical,
+                Status = TaskStatus.ToDo,
                 AssigneeId = 1
             },
-            new
+            new()
             {
                 Id = 4,
-                AuthorId = 2,
-                Title = "#4 Task",
-                Description = "This is a task for test.",
-                Deadline = new DateOnly(2030, 04, 04),
-                Priority = TaskPriority.LowPriority,
-                Status = TaskStatus.Done,
-                AssigneeId = 2
-            },
-            new
-            {
-                Id = 5,
-                AuthorId = 2,
-                Title = "#5 Task",
-                Description = "This is a task for test.",
-                Deadline = new DateOnly(2030, 05, 05),
-                Priority = TaskPriority.Critical,
+                AuthorId = 1,
+                Title = "Jellyfishing Tournament",
+                Description = "Organize and host a jellyfishing tournament for Bikini Bottom residents.",
+                Deadline = new DateOnly(2030, 01, 04),
+                Priority = TaskPriority.HighPriority,
                 Status = TaskStatus.ToDo,
                 AssigneeId = 2
             },
-            new
+            new()
+            {
+                Id = 5,
+                AuthorId = 4,
+                Title = "Krabby Patty Recipe Enhancement",
+                Description = "Experiment with new ingredients and cooking methods to improve the flavor and quality of Krabby Patties.",
+                Deadline = new DateOnly(2030, 01, 05),
+                Priority = TaskPriority.HighPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 1
+            },
+            new()
             {
                 Id = 6,
-                AuthorId = 2,
-                Title = "#6 Task",
-                Description = "This is a task for test.",
-                Deadline = new DateOnly(2030, 06, 06),
-                Priority = TaskPriority.LowPriority,
-                Status = TaskStatus.InProgress,
+                AuthorId = 1,
+                Title = "Community Clean-Up Day",
+                Description = "Lead a team to clean up litter from Jellyfish Fields and Goo Lagoon.",
+                Deadline = new DateOnly(2030, 01, 06),
+                Priority = TaskPriority.MediumPriority,
+                Status = TaskStatus.ToDo,
                 AssigneeId = 2
             },
+            new()
+            {
+                Id = 7,
+                AuthorId = 4,
+                Title = "Artistic Mural for Krusty Krab",
+                Description = "Paint a mural depicting the history of the Krusty Krab on the restaurant's exterior wall.",
+                Deadline = new DateOnly(2030, 01, 07),
+                Priority = TaskPriority.MediumPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 3
+            },
+            new()
+            {
+                Id = 8,
+                AuthorId = 3,
+                Title = "Stand-Up Comedy Routine",
+                Description = "Write and perform a stand-up comedy routine at the Krusty Krab to entertain customers.",
+                Deadline = new DateOnly(2030, 01, 08),
+                Priority = TaskPriority.Critical,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 3
+            },
+            new()
+            {
+                Id = 9,
+                AuthorId = 4,
+                Title = "Annual Employee Evaluations",
+                Description = "Conduct performance reviews for all Krusty Krab employees and provide feedback.",
+                Deadline = new DateOnly(2030, 01, 09),
+                Priority = TaskPriority.LowPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 1
+            },
+            new()
+            {
+                Id = 10,
+                AuthorId = 1,
+                Title = "Deep Sea Exploration",
+                Description = "Investigate mysterious underwater caves near Bikini Bottom for potential new discoveries.",
+                Deadline = new DateOnly(2030, 01, 10),
+                Priority = TaskPriority.HighPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 2
+            },
+            new()
+            {
+                Id = 11,
+                AuthorId = 4,
+                Title = "Krabby Patty Quality Control",
+                Description = "Taste-test Krabby Patties from today's batch to ensure they meet Mr. Krabs' high standards.",
+                Deadline = new DateOnly(2030, 01, 11),
+                Priority = TaskPriority.HighPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 1
+            },
+            new()
+            {
+                Id = 12,
+                AuthorId = 1,
+                Title = "Jellyfishing Expedition",
+                Description = "Gather new jellyfish specimens for the Bikini Bottom Jellyfish Fields exhibit.",
+                Deadline = new DateOnly(2030, 01, 12),
+                Priority = TaskPriority.MediumPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 2
+            },
+            new()
+            {
+                Id = 13,
+                AuthorId = 3,
+                Title = "Clarinet Solo Performance",
+                Description = "Practice and perform a solo clarinet piece at the Bikini Bottom Symphony Orchestra concert.",
+                Deadline = new DateOnly(2030, 01, 13),
+                Priority = TaskPriority.HighPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 3
+            },
+            new()
+            {
+                Id = 14,
+                AuthorId = 4,
+                Title = "Customer Satisfaction Survey",
+                Description = "Conduct a survey among Krusty Krab customers to gather feedback on service and food quality.",
+                Deadline = new DateOnly(2030, 01, 14),
+                Priority = TaskPriority.LowPriority,
+                Status = TaskStatus.ToDo,
+                AssigneeId = 1
+            }
         };
+
+        List<TaskAssignedNotification> seedTaskAssignedNotifications = [];
+
+        foreach (var seedTask in seedTasks)
+        {
+            seedTaskAssignedNotifications.Add(new()
+            {
+                TaskId = seedTask.Id,
+                AssigneeId = seedTask.AssigneeId!.Value
+            });
+        }
 
         modelBuilder.Entity<User>().HasData(seedUsers);
         modelBuilder.Entity<Task>().HasData(seedTasks);
+        modelBuilder.Entity<TaskAssignedNotification>().HasData(seedTaskAssignedNotifications);
     }
 
 }
