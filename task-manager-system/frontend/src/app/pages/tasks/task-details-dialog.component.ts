@@ -246,6 +246,8 @@ export class TaskPageDetailsDialog implements OnInit {
 
         const { id, author, ...taskForm } = task;
 
+        taskForm.deadline = taskForm.deadline ? dayjs(taskForm.deadline).toISOString() : taskForm.deadline;
+
         this.form.setValue(taskForm as any);
 
         if (author.id != this.authService.user!.id)

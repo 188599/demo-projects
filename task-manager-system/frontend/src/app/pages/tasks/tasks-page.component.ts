@@ -11,7 +11,7 @@ import { TASK_PRIORITY_LABEL_MAPPING } from '../../enums/task-priority';
 import { MatDialog } from '@angular/material/dialog';
 import { TaskPageDetailsDialog } from './task-details-dialog.component';
 import { TypeSafeMatCellDefDirective } from '../../directives/type-safe-mat-cell-def.directive';
-import { BehaviorSubject, distinctUntilChanged, filter, lastValueFrom, map, merge, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, lastValueFrom, map, merge, switchMap, tap } from 'rxjs';
 import { MatSortModule, Sort, SortDirection } from '@angular/material/sort';
 import { MatRippleModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
@@ -24,6 +24,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import dayjs from 'dayjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-tasks-page',
@@ -125,7 +126,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
       <ng-container matColumnDef="deadline">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Deadline</mat-header-cell>
 
-        <mat-cell *matCellDef="let task; dataSource: tasks$">{{ task.deadline }}</mat-cell>
+        <mat-cell *matCellDef="let task; dataSource: tasks$">{{ task.deadline | dateFormat }}</mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="priority">
@@ -172,7 +173,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatDatepickerModule,
     MatFormFieldModule,
     MatToolbarModule,
-    TypeSafeMatCellDefDirective
+    TypeSafeMatCellDefDirective,
+    DateFormatPipe
   ],
   styles: `
     @use '@angular/material' as mat;
