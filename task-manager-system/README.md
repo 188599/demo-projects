@@ -10,15 +10,24 @@
 
 <br>
 
-## Demo running
-
-[Click here to see the project running](https://task-management-system.madriano188599.xyz)
-
 ## Technologies Used
 
 - Frontend: Angular
 - Backend: .NET Core
 - Database: SQL Server
+
+## Running demo
+
+[Click here to see the project running](https://task-management-system.madriano188599.xyz)
+
+You can use one of the seeded users listed below or sign up and create your own user
+
+| Username   | Password |
+| ---------- | -------- |
+| sponge_bob | pass123  |
+| patrick    | 123      |
+| squidward  | 123      |
+| mr_krabs   | money    |
 
 ## Features
 
