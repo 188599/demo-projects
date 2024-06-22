@@ -237,8 +237,11 @@ export class TaskPageDetailsDialog implements OnInit {
     public async ngOnInit() {
         const taskId = this.data.taskId;
 
-        if (!taskId)
+        if (!taskId) {
+            this.isLoading = false;
+
             return;
+        }
 
         const task = await lastValueFrom(this.tasksService.getTask(taskId));
 
