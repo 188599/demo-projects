@@ -109,6 +109,6 @@ You can use one of the seeded users listed below or sign up and create your own 
 
 - Notifications are displayed within the application (you can dissmis by clicking on it)
 
-    <img src="docs/notifications.png" alt="Notifications" width="500px" />
+    <img src="docs/notifications.png" alt="Notifications" width="300px" />
 
     <br>
