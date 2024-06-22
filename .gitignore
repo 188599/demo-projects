@@ -92,3 +92,4 @@ Thumbs.db
 
 # md files
 *.md
+!README.md
